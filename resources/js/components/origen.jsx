@@ -1,17 +1,15 @@
 'use client'
-
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Plus, Minus } from 'lucide-react'
+import { Plus, Minus } from "lucide-react"
 import axios from 'axios'
 
 export default function Timeline() {
     const [currentTime, setCurrentTime] = useState(new Date())
     const [zoomLevel, setZoomLevel] = useState(1)
-    const [events, setEvents] = useState([])
     const scrollAreaRef = useRef(null)
 
     useEffect(() => {
@@ -19,16 +17,6 @@ export default function Timeline() {
             setCurrentTime(new Date())
         }, 1000)
         return () => clearInterval(timer)
-    }, [])
-
-    useEffect(() => {
-        axios.get('/api/horarios')
-            .then(response => {
-                setEvents(response.data)
-            })
-            .catch(error => {
-                console.error('Error fetching events:', error)
-            })
     }, [])
 
     useEffect(() => {
@@ -41,28 +29,55 @@ export default function Timeline() {
     const startHour = 8
     const endHour = 22
     const totalHours = endHour - startHour
-
-    const timeMarkers = React.useMemo(() => {
-        return Array.from({ length: totalHours * 12 * zoomLevel }, (_, i) => {
-            const hour = Math.floor(i / (12 * zoomLevel)) + startHour
-            const minute = (i % (12 * zoomLevel)) * (5 / zoomLevel)
-            return { hour, minute }
-        })
-    }, [zoomLevel])
+    const timeMarkers = Array.from({ length: totalHours * 12 * zoomLevel }, (_, i) => {
+        const hour = Math.floor(i / (12 * zoomLevel)) + startHour
+        const minute = (i % (12 * zoomLevel)) * (5 / zoomLevel)
+        return { hour, minute }
+    })
 
     const currentHour = currentTime.getHours()
     const currentMinute = currentTime.getMinutes()
     const progress = currentHour < startHour || currentHour >= endHour ? null : ((currentHour - startHour) * 60 + currentMinute) / (totalHours * 60) * 100
+    
+    
+     
+    const events = [
+        {
+            time: "08:30",
+            description: "Entrance of employee",
+            extraInfo: ["Employee: John Doe", "Department: Marketing", "ID: 12345"]
+        },
+        {
+            time: "12:00",
+            description: "Lunch break",
+            extraInfo: ["Duration: 1 hour", "Location: Cafeteria", "Menu: Vegetarian options available"]
+        },
+        {
+            time: "15:00",
+            description: "Team meeting",
+            extraInfo: ["Room: Conference Room A", "Duration: 1 hour", "Agenda: Q2 Planning"]
+        },
+        {
+            time: "15:00",
+            description: "Client call",
+            extraInfo: ["Client: Acme Corp", "Duration: 30 minutes", "Platform: Zoom"]
+        },
+        {
+            time: "17:00",
+            description: "End of workday",
+            extraInfo: ["Total hours: 8.5", "Overtime: None", "Next shift: Tomorrow 08:30"]
+        }
+    ]
 
-    const formatTime = useCallback((hour, minute) => `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`, [])
+    const formatTime = (hour, minute) => `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
 
-    const handleZoomIn = useCallback(() => {
+    const handleZoomIn = () => {
         setZoomLevel(prev => Math.min(prev * 2, 4))
-    }, [])
+    }
 
-    const handleZoomOut = useCallback(() => {
+    const handleZoomOut = () => {
         setZoomLevel(prev => Math.max(prev / 2, 1))
-    }, [])
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -80,7 +95,7 @@ export default function Timeline() {
                         <div className="relative">
                             {timeMarkers.map(({ hour, minute }, index) => {
                                 const timeString = formatTime(hour, minute)
-                                const timeEvents = events.filter(e => e.time.startsWith(timeString))
+                                const timeEvents = events.filter(e => e.time === timeString)
 
                                 return (
                                     <div key={index} className="flex items-start justify-start pl-2 min-h-[1.5rem] py-1" style={{ height: `${1.5 * zoomLevel}rem` }}>
@@ -96,7 +111,7 @@ export default function Timeline() {
                                                     <Dialog key={eventIndex}>
                                                         <DialogTrigger asChild>
                                                             <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">
-                                                                {event.extraInfo[1]}
+                                                                {event.description}
                                                             </Badge>
                                                         </DialogTrigger>
                                                         <DialogContent className="sm:max-w-[425px]">
