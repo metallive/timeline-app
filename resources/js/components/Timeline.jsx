@@ -80,7 +80,8 @@ export default function Timeline() {
                         <div className="relative">
                             {timeMarkers.map(({ hour, minute }, index) => {
                                 const timeString = formatTime(hour, minute)
-                                const timeEvents = events.filter(e => e.time.startsWith(timeString))
+                                const timeEvents = events.filter(e => e.time.startsWith(timeString) || e.time2.startsWith(timeString) || e.time3.startsWith(timeString)|| e.time4.startsWith(timeString))
+                                
 
                                 return (
                                     <div key={index} className="flex items-start justify-start pl-2 min-h-[1.5rem] py-1" style={{ height: `${1.5 * zoomLevel}rem` }}>
@@ -101,7 +102,8 @@ export default function Timeline() {
                                                         </DialogTrigger>
                                                         <DialogContent className="sm:max-w-[425px]">
                                                             <DialogHeader>
-                                                                <DialogTitle>{event.description} - {event.time}</DialogTitle>
+                                                                <DialogTitle>{event.description} - {event.time} - {event.time2}</DialogTitle>
+                                                                <DialogTitle>{event.time3} - {event.time4}</DialogTitle>
                                                             </DialogHeader>
                                                             <div className="mt-4">
                                                                 <ul className="list-disc pl-5 space-y-2">
@@ -141,3 +143,8 @@ export default function Timeline() {
         </div>
     )
 }
+
+
+
+
+

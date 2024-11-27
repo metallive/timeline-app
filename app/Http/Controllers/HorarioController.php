@@ -13,6 +13,9 @@ class HorarioController extends Controller
             ->map(function($horario) {
                 return [
                     'time' => $horario->entrada_1,
+                    'time2'=> $horario->salida_1,
+                    'time3'=> $horario->entrada_2,
+                    'time4'=> $horario->salida_2,
                     'description' => 'Entrada empleado',
                     'extraInfo' => [
                         'Employee: ' . $horario->seccion->empleado->nombre_empleado,
